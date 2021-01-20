@@ -1,0 +1,3 @@
+include ':coderdecoder'
+include ':app'
+rootProject.name = "TagAndCardCoderDecoder"
