@@ -1,13 +1,15 @@
 plugins {
     id 'com.android.library'
+    id 'com.github.dcendents.android-maven'// 1. 【必加】 启用 android-maven 插件
     id 'kotlin-android'
     id 'kotlin-android-extensions'
     id 'kotlin-kapt'
 }
-// 1. 【必加】 启用 android-maven 插件
-apply plugin: 'com.github.dcendents.android-maven'
 // 2. 【必加】 关联Github地址, 格式为 com.github.(用户名)
 group = 'com.github.yuxpro'
+version='1.0.0'
+
+
 
 android {
     compileSdkVersion 30
