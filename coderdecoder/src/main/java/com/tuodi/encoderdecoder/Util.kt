@@ -212,7 +212,7 @@ fun String.bit5Encode(): String = run {
     for (i in 1..index) {
         val endIndex = i * 8
         bitData = tranString.substring((i - 1) * 8, if (endIndex > lenght) lenght else endIndex)
-        stringBuffer.append(CommonUtil.binaryStringToHex(bitData))
+        stringBuffer.append(binaryStringToHex(bitData))
     }
     return@run stringBuffer.toString()
 }
@@ -233,7 +233,7 @@ fun ByteArray.bit5Decode(): String = run {
             continue
         }
         bitData = "010$bitData"
-        stringBuffer.append(CommonUtil.binaryStringToHex(bitData))
+        stringBuffer.append(binaryStringToHex(bitData))
     }
     stringBuffer.toString().toAsciiString()
 }
@@ -280,7 +280,7 @@ fun String.bit6Encode() = run {
     for (i in 1..index) {
         val endIndex = i * 8
         bitData = tranString.substring((i - 1) * 8, if (endIndex > lenght) lenght else endIndex)
-        stringBuffer.append(CommonUtil.binaryStringToHex(bitData))
+        stringBuffer.append(binaryStringToHex(bitData))
     }
     return stringBuffer.toString()
 }
@@ -315,7 +315,7 @@ fun ByteArray.bit6Decode(): String = run {
             } else {
                 "01$bitData"
             }
-        stringBuffer.append(CommonUtil.binaryStringToHex(bitData))
+        stringBuffer.append(binaryStringToHex(bitData))
     }
     stringBuffer.toString().toAsciiString()
 }
@@ -362,7 +362,7 @@ fun String.bit7Encode(): String = run {
     for (i in 1..index) {
         val endIndex = i * 8
         bitData = tranString.substring((i - 1) * 8, if (endIndex > lenght) lenght else endIndex)
-        stringBuffer.append(CommonUtil.binaryStringToHex(bitData))
+        stringBuffer.append(binaryStringToHex(bitData))
     }
     return@run stringBuffer.toString()
 }
@@ -390,7 +390,7 @@ fun ByteArray.bit7Decode(): String = run {
             ) continue
         }
         bitData = "0$bitData"
-        stringBuffer.append(CommonUtil.binaryStringToHex(bitData))
+        stringBuffer.append(binaryStringToHex(bitData))
     }
     stringBuffer.toString().toAsciiString()
 }
