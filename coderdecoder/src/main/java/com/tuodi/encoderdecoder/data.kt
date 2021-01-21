@@ -31,7 +31,7 @@ data class RFIDInfo(
 
 
 /**
- * 返回可以写入感创标签或卡的byte数组
+ * 返回可以写入图创、感创标签或卡的byte数组
  */
 fun RFIDInfo.getRawByteArray(alignment: Boolean = true): ByteArray = run {
     val tmp = arrayListOf<Byte>()

@@ -18,7 +18,7 @@ import kotlin.experimental.and
  * string：
  *      TD123456
  * byteArray：
- *      610854443132333435360201B8030A1B81E440100A0A9999FF6501102D39393939050180000000000000000000(后面的0是补全，不同位数的0会不同）
+ *      610854443132333435360201B803091B81E440100A0A9999650110(后面的0是补全，不同位数的0会不同）
  */
 fun ByteArray.tuChuangDecode(decodeStrLength: Int? = null): String = run {
     var result = ""
@@ -27,7 +27,7 @@ fun ByteArray.tuChuangDecode(decodeStrLength: Int? = null): String = run {
     if (newData.size > 4) {
         var index = 0
         val rfids = arrayListOf<RFIDInfo>()
-        while (newData[index] != 0.toByte()) {
+        while (index < newData.size && newData[index] != 0.toByte()) {
             val rfid = RFIDInfo(data = ByteArray(0))
             rfid.offset = (newData[index] and (0x80).toByte()).toInt() shr 7
             rfid.codeDecodeType = (newData[index] and (0x70).toByte()).toInt() shr 4
@@ -35,49 +35,52 @@ fun ByteArray.tuChuangDecode(decodeStrLength: Int? = null): String = run {
 
             var dataSizeOffset: Int
             var offset: Int
+
+            /*
+             * 1 从前导字节判断是否存在偏移量
+             * 2 判断前导字节的对象标识符的范围是1-14/15-127(存在相对OID)
+             * 3 根据数据长度截取数据段
+             */
             if (rfid.offset == 1) {
-                if (index >= newData.size - 4) {
-                    break
-                }
                 dataSizeOffset = 1
                 offset = newData[index + 1].toInt()
             } else {
-                if (index >= newData.size - 3) {
-                    break
-                }
                 dataSizeOffset = 0
                 offset = 0
             }
             val dataSize = newData[index + 1 + dataSizeOffset].toInt()
+            if (index > newData.size - dataSize) {
+                break
+            }
+
             rfid.data = ByteArray(dataSize)
+
             if (rfid.oid == 0x0f) {
                 rfid.oid = dataSize + 15
                 System.arraycopy(newData, index + 3 + dataSizeOffset, rfid.data, 0, dataSize)
-                index += 3 + dataSizeOffset + dataSize + offset
+                index += 3 + dataSize + dataSizeOffset + offset
             } else {
                 System.arraycopy(newData, index + 2 + dataSizeOffset, rfid.data, 0, dataSize)
-                index += 2 + dataSizeOffset + dataSize
+                index += 2 + dataSize + dataSizeOffset
             }
             rfids.add(rfid)
         }
-        if (index != 0) {//说明经过了上述while循环操作
+        if (rfids.isNotEmpty()) {//说明经过了上述while循环操作
             val rfid1 = rfids.firstOrNull { it.oid == 1 }
             val rfid3 = rfids.firstOrNull { it.oid == 3 }
             val rfid5 = rfids.firstOrNull { it.oid == 5 }
             rfid3?.let {
                 val libCode = it.getDataEncodeStrByOid()
-                if (libCode.isNotEmpty()) {
-
-                }
             }
             rfid1?.let {
+
                 result = it.getDataEncodeStrByOid()
             }
         }
     }
     decodeStrLength?.let {
-        if (result.length > decodeStrLength) {
-            result = result.substring(0, decodeStrLength)
+        if (result.length > it) {
+            result = result.substring(0, it)
         }
     }
     result
@@ -89,7 +92,7 @@ fun ByteArray.tuChuangDecode(decodeStrLength: Int? = null): String = run {
  * string：
  *      TD123456
  * byteArray：
- *      610854443132333435360201B8030A1B81E440100A0A9999FF6501102D39393939050180000000000000000000(后面的0是补全，不同位数的0会不同）
+ *      610854443132333435360201B803091B81E440100A0A9999650110(后面的0是补全，不同位数的0会不同）
  *
  * @param libCode ：馆代码
  * @param rfidType :标签或卡的标识符 读者证 0x80 图书标签 0x10/0x12 层架标 0x4f
@@ -112,7 +115,7 @@ fun String.tuChuangEncoder(
         )
     )
 
-    dataByteArr = ByteArray(1) {0XB8.toByte() }
+    dataByteArr = ByteArray(1) { 0XB8.toByte() }
     rfids.add(
         RFIDInfo(
             oid = 2,
@@ -143,7 +146,7 @@ fun String.tuChuangEncoder(
     val result = arrayListOf<Byte>()
 
     rfids.sortedBy { it.oid }.forEach {
-        val tmp=it.getRawByteArray(false)
+        val tmp = it.getRawByteArray(false)
         if (it.oid == 1) {
 //            result[0] = result[0] or (0x80).toByte()
 //            val fixByte = result[1] % 2

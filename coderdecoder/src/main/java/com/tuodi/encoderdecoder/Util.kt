@@ -82,7 +82,7 @@ fun ByteArray.zhangYuParse() = run {
         val tmp = arrayListOf<Byte>()
         var i = 1
         while (i + 4 < this.size) {
-            tmp.addAll(this.slice(IntRange(i, i + 4)))
+            tmp.addAll(this.slice(IntRange(i, i + 3)))
             i += 5
         }
         tmp.toByteArray()
@@ -91,6 +91,11 @@ fun ByteArray.zhangYuParse() = run {
     }
 }
 
+/**
+ * ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ * ISO/IEC 15962 编解码
+ * ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ */
 /**
  * 解码
  *
@@ -140,40 +145,37 @@ fun ByteArray.decode2Str(codeDecodeType: Int) =
 fun String.encode2ByteArray(codeDecodeType: Int): ByteArray = run {
     when (codeDecodeType) {
         DEFAULT -> {
-//            Util.defaultEncode(this).toByteArray()
             toAsciiByteArray()
         }
         DECIMAL -> {
-//            Util.decimalEncode(this).toByteArray()
             IntToByteArray(this.toInt())
         }
         HEX -> {
-//            Util.hexEncode(this).toByteArray()
             decodeHex(this)
         }
         BIT5 -> {
-//            Util.bit5Encode(this).toByteArray()
             bit5Encode().toAsciiByteArray()
         }
         BIT6 -> {
-//            Util.bit6Encode(this).toByteArray()
             bit6Encode().toAsciiByteArray()
         }
         BIT7 -> {
-//            Util.bit7Encode(this).toByteArray()
             bit7Encode().toAsciiByteArray()
         }
         ASCII -> {
-//            Util.asciiEncode(this).toByteArray()
             toAsciiByteArray()
         }
         else -> {
-//            Util.hexEncode(this).toByteArray()
             decodeHex(this)
         }
     }
 }
 
+/**
+ * ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ * 5bit编解码
+ * ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ */
 /**
  * 高校图书馆UHF RFID标准 5bit编码
  */
@@ -236,6 +238,11 @@ fun ByteArray.bit5Decode(): String = run {
     stringBuffer.toString().toAsciiString()
 }
 
+/**
+ * ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ * 6bit编解码
+ * ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ */
 /**
  * 高校图书馆UHF RFID标准 6bit编码
  */
@@ -313,6 +320,12 @@ fun ByteArray.bit6Decode(): String = run {
     stringBuffer.toString().toAsciiString()
 }
 
+
+/**
+ * ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ * 7bit编解码
+ * ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ */
 /**
  * 高校图书馆UHF RFID标准 7bit编码
  */
@@ -419,9 +432,8 @@ fun ByteArray.isilDecode(): String {
     var pos = 0
     while (pos + step < length) {
         val str = binStrings.substring(pos, pos + step)
-        println(str)
         pos += step
-        val covert: Int = str.toInt(10)
+        val covert: Int = Util.binary2Decimal(str)
         if (letterType == 0 || letterType == 1) {
             if (covert == 28 || covert == 29) {
                 if (covert == 29) {

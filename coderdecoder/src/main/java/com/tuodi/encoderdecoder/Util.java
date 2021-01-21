@@ -1,7 +1,6 @@
 package com.tuodi.encoderdecoder;
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,7 @@ class Util {
      * ////////////////////////////////////////////////////////////////////////////////////////////
      */
     public static String defaultDecode(byte[] data, int type) {
-        return  CommonUtil.ByteArrToHex(data);
+        return CommonUtil.ByteArrToHex(data);
     }
 
     public static String defaultEncode(String data) {
@@ -57,11 +56,11 @@ class Util {
      * Hex编解码 2
      * ////////////////////////////////////////////////////////////////////////////////////////////
      */
-    public static String hexDecode(byte[] data,int type) {
-        return  CommonUtil.ByteArrToHex(data);
+    public static String hexDecode(byte[] data, int type) {
+        return CommonUtil.ByteArrToHex(data);
     }
 
-    public static  String hexEncode(String data) {
+    public static String hexEncode(String data) {
         if (TextUtils.isEmpty(data)) {
             return "";
         }
@@ -283,7 +282,7 @@ class Util {
             int endIndex = i * 7;
             bitData = dataString.substring((i - 1) * 7, Math.min(endIndex, dataLenght));
             if (i == index) {
-                if (TextUtils.equals("1", bitData.length()>0?bitData.substring(0,1):bitData))
+                if (TextUtils.equals("1", bitData.length() > 0 ? bitData.substring(0, 1) : bitData))
                     continue;
             }
             bitData = GIVE_UP_BIT_7_FIRST + bitData;
@@ -295,6 +294,7 @@ class Util {
 
     private static int min7Value = 0;
     private static int max7Value = 126;
+
     public static String processDataBit7(String data) {
         if (TextUtils.isEmpty(data)) {
             return "";
@@ -312,7 +312,7 @@ class Util {
         }
         StringBuilder tranString = new StringBuilder(stringBuilder.toString());
         int lenght = tranString.length();
-        int remainder = 8-(lenght % 8);
+        int remainder = 8 - (lenght % 8);
         int index = lenght / 8;
         //判断余数添加0
         if (remainder > 0) {
@@ -321,7 +321,7 @@ class Util {
                 tranString.append("1");
             }
         }
-        lenght=tranString.length();
+        lenght = tranString.length();
         String bitData = "";
         stringBuilder.setLength(0);
         for (int i = 1; i <= index; i++) {
@@ -374,7 +374,6 @@ class Util {
         StringBuilder barcode = new StringBuilder();
         for (int pos = 0; pos + step < length; ) {
             String str = byteStrings.substring(pos, pos + step);
-            System.out.println(str);
             pos += step;
             int covert = binary2Decimal(str);
             if (letterType == 0 || letterType == 1) {
@@ -671,22 +670,18 @@ class Util {
      * 其他进制转十进制
      */
     public static int scale2Decimal(String num, int scale) {
-        String number = num;
-        System.out.println(number);
         if (scale <= 10) {
-            checkNumber(number);
+            checkNumber(num);
         }
-        if (2 > scale || scale > 32) {
+        if (scale < 2 || scale > 32) {
             throw new IllegalArgumentException("scale is not in range");
         }
         // 不同其他进制转十进制,修改这里即可
         int total = 0;
-        char[] ch = number.toCharArray();
+        char[] ch = num.toCharArray();
         int chLength = ch.length;
-        System.out.println(chLength);
         for (int i = 0; i < chLength; i++) {
             //Log.i("binbin", "scale2Decimal: "+ch[i]);
-            System.out.println("ch[i]" + ch[i]);
             total += Integer.parseInt(ch[i] + "", 16) * Math.pow(scale, chLength - 1 - i);
         }
         return total;
