@@ -1,6 +1,6 @@
 package com.tuodi.encoderdecoder.tag
 
-import com.tuodi.encoderdecoder.toStringRadix
+import com.tuodi.encoderdecoder.toTargetRadixString
 import com.tuodi.encoderdecoder.toUDecimalNumber
 
 /**
@@ -31,5 +31,5 @@ fun ByteArray.yuanWangGuDecoder(): String = run {
 fun String.yuanWangGuEncoder(): ByteArray = run {
     val data = "1$this".toByteArray()
     data.reverse()
-    ("C20019002000" + data.toStringRadix(16)).toByteArray()
+    ("C20019002000" + data.toTargetRadixString(16)).toByteArray()
 }

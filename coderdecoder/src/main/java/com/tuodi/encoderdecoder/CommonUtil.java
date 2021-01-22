@@ -136,70 +136,6 @@ public class CommonUtil {
         return byteData.length() & 0x1;
     }
 
-    //十六转二
-    public static String hexString2binaryString(String hexString) {
-        if (hexString == null || hexString.length() % 2 != 0)
-            return "";
-
-        hexString = hexString.toUpperCase();
-        String result = "";
-        int max = hexString.length();
-        for (int i = 0; i < max; i++) {
-            char c = hexString.charAt(i);
-            switch (c) {
-                case '0':
-                    result += "0000";
-                    break;
-                case '1':
-                    result += "0001";
-                    break;
-                case '2':
-                    result += "0010";
-                    break;
-                case '3':
-                    result += "0011";
-                    break;
-                case '4':
-                    result += "0100";
-                    break;
-                case '5':
-                    result += "0101";
-                    break;
-                case '6':
-                    result += "0110";
-                    break;
-                case '7':
-                    result += "0111";
-                    break;
-                case '8':
-                    result += "1000";
-                    break;
-                case '9':
-                    result += "1001";
-                    break;
-                case 'A':
-                    result += "1010";
-                    break;
-                case 'B':
-                    result += "1011";
-                    break;
-                case 'C':
-                    result += "1100";
-                    break;
-                case 'D':
-                    result += "1101";
-                    break;
-                case 'E':
-                    result += "1110";
-                    break;
-                case 'F':
-                    result += "1111";
-                    break;
-            }
-        }
-        return result;
-    }
-
     /**
      * byte转kb mb
      */
@@ -549,14 +485,6 @@ public class CommonUtil {
         return stringBuilder.toString();
     }
 
-    public static String ByteArrToHex(byte[] datas) {
-        StringBuilder stringBuilder = new StringBuilder();
-        for (byte data : datas) {
-            stringBuilder.append(Byte2Hex(data));
-            stringBuilder.append(" ");
-        }
-        return stringBuilder.toString();
-    }
 
     /**
      * 16进制转ASCII码
@@ -567,7 +495,6 @@ public class CommonUtil {
         StringBuilder temp = new StringBuilder();
 
         for (int i = 0; i < hex.length() - 1; i += 2) {
-
             //grab the hex in pairs
             String output = hex.substring(i, (i + 2));
             //convert hex to decimal
@@ -575,7 +502,6 @@ public class CommonUtil {
             //convert the decimal to character
             sb.append((char) decimal);
 
-            temp.append(decimal);
         }
 
         return sb.toString();

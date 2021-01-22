@@ -1,7 +1,6 @@
 package com.tuodi.encoderdecoder.tag
 
-import com.tuodi.encoderdecoder.toStringRadix
-import com.tuodi.encoderdecoder.toUDecimalNumber
+import com.tuodi.encoderdecoder.toTargetRadixString
 import kotlin.experimental.and
 
 /**
@@ -37,7 +36,7 @@ fun ByteArray.shenZhenDecode( ): String = run {
         val tmp1 = ByteArray(8)
         System.arraycopy(tmp.toByteArray(), 0, tmp1, 8 - tmp.size, tmp.size)
         tmp1.reverse()
-        barcode = tmp1.toStringRadix(16)
+        barcode = tmp1.toTargetRadixString(16)
         while (barcode.length < 14) {
             barcode = "0$barcode"
         }

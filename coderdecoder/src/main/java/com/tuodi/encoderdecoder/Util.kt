@@ -2,10 +2,10 @@ package com.tuodi.encoderdecoder
 
 import android.text.TextUtils
 import com.tuodi.encoderdecoder.CommonUtil.*
-import com.tuodi.encoderdecoder.Util.binaryString2byteArray
 import java.math.BigInteger
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.experimental.and
 import kotlin.math.min
 
 /**
@@ -22,43 +22,130 @@ import kotlin.math.min
 /**
  * 2~36进制可以正常转换，2进制以下或者36进制以上的会被转成10进制
  */
-fun ByteArray.toStringRadix(
-    radix: Int = 10,
+fun ByteArray.toTargetRadixString(
+    targetRadix: Int = 10,
     isNegative: Boolean = false,
     isUpper: Boolean = true
 ): String =
     if (isUpper) {
-        BigInteger(if (isNegative) -1 else 1, this).toString(radix).toUpperCase(Locale.CHINA)
+        BigInteger(if (isNegative) -1 else 1, this).toString(targetRadix).toUpperCase(Locale.ROOT)
     } else {
-        BigInteger(if (isNegative) -1 else 1, this).toString(radix).toLowerCase(Locale.CHINA)
+        BigInteger(if (isNegative) -1 else 1, this).toString(targetRadix).toLowerCase(Locale.ROOT)
     }
 
-
 /**
- * 字符串转成ASCII字符集的byte数组
- */
-fun String.toAsciiByteArray() = this.toByteArray(Charsets.US_ASCII)
-
-/**
- * byte数组转成ASCII字符串
+ * ByteArray to ASCII String
  */
 fun ByteArray.toAsciiString() = this.toString(Charsets.US_ASCII)
 
 /**
- * String转成ASCII字符串
+ * Byte转成无符号整数
  */
-fun String.toAsciiString(): String = hexStr2AsciiStr(this)
+fun Byte.toUnsignedInt() = (this and (0xff).toByte()).toInt()
 
 /**
- * 字符串转成UTF16字符集的byte数组
+ * X Radix String to Y Radix String (X、Y can be same)
  */
-fun String.toUTF16ByteArray() = this.toByteArray(Charsets.UTF_16)
+fun String.toTargetRadixString(
+    originalRadix: Int = 10,
+    targetRadix: Int = 10,
+    isUpper: Boolean = true
+) =
+    if (isUpper) {
+        BigInteger(this, originalRadix).toString(targetRadix).toUpperCase(Locale.ROOT)
+    } else {
+        BigInteger(this, originalRadix).toString(targetRadix).toLowerCase(Locale.ROOT)
+    }
+
+fun String.toAsciiString(originalRadix: Int = 10) =
+    toTargetRadixString(originalRadix, 16).hex2AsciiString()
+
+
+/**
+ * hex String to ASCII Sting
+ */
+fun String.hex2AsciiString(): String = run {
+    var sb = ""
+    var i = 0
+    while (i < this.length - 1) {
+        //grab the hex in pairs
+        val output: String = this.substring(i, i + 2)
+        //convert hex to decimal
+        val decimal = output.toInt(16)
+        //convert the decimal to character
+        sb += (decimal.toChar())
+        i += 2
+    }
+    return sb
+}
+
+/**
+ * String to ASCII ByteArray
+ */
+fun String.toAsciiByteArray() = this.toByteArray(Charsets.US_ASCII)
+
+/**
+ * 16进制字符串转2进制字符串
+ */
+fun String.hex2Binary(): String = run {
+    val hex = this.toUpperCase()
+    val result = java.lang.StringBuilder()
+    val max: Int = hex.length
+    for (i in 0 until max) {
+        when (hex[i]) {
+            '0' -> result.append("0000")
+            '1' -> result.append("0001")
+            '2' -> result.append("0010")
+            '3' -> result.append("0011")
+            '4' -> result.append("0100")
+            '5' -> result.append("0101")
+            '6' -> result.append("0110")
+            '7' -> result.append("0111")
+            '8' -> result.append("1000")
+            '9' -> result.append("1001")
+            'A' -> result.append("1010")
+            'B' -> result.append("1011")
+            'C' -> result.append("1100")
+            'D' -> result.append("1101")
+            'E' -> result.append("1110")
+            'F' -> result.append("1111")
+        }
+    }
+    return result.toString()
+}
+
+/**
+ * 2进制字符串转ByteArray
+ */
+fun String.bin2ByteArray(): ByteArray = run {
+    val stringBuilder = StringBuilder(this)
+    // 注：这里in.length() 不可在for循环内调用，因为长度在变化
+    val remainder = stringBuilder.length % 8
+    if (remainder > 0) {
+        for (i in 0 until 8 - remainder) {
+            stringBuilder.append("0")
+        }
+    }
+    val bts = ByteArray(stringBuilder.length / 8)
+    // Step 8 Apply compression
+    for (i in bts.indices) {
+        bts[i] = stringBuilder.substring(i * 8, i * 8 + 8).toInt(2).toByte()
+    }
+    return bts
+}
+
+/**
+ * 16进制字符串转ByteArray
+ */
+fun String.hex2ByteArray(): ByteArray = run {
+    hex2Binary().bin2ByteArray()
+}
 
 /**
  * byte数组转成十进制数字
  */
 fun ByteArray.toUDecimalNumber() = run {
-    val binStr = this.toStringRadix(2).reversed()
+    val binStr = this.toTargetRadixString(2).reversed()
     var result = 0L
     var exp2 = 1L
     binStr.reversed().forEach { char ->
@@ -112,13 +199,13 @@ fun ByteArray.zhangYuParse() = run {
 fun ByteArray.decode2Str(codeDecodeType: Int) =
     when (codeDecodeType) {
         DEFAULT -> {
-            toStringRadix(16)
+            toTargetRadixString(16)
         }
         DECIMAL -> {
-            toStringRadix(10)
+            toTargetRadixString(10)
         }
         HEX -> {
-            toStringRadix(16)
+            toTargetRadixString(16)
         }
         BIT5 -> {
             bit5Decode()
@@ -133,7 +220,7 @@ fun ByteArray.decode2Str(codeDecodeType: Int) =
             toAsciiString()
         }
         else -> {
-            toStringRadix(16)
+            toTargetRadixString(16)
         }
     }
 
@@ -186,7 +273,7 @@ fun String.bit5Encode(): String = run {
     val stringBuffer = StringBuffer()
     val dataBytes: ByteArray = this.toAsciiByteArray()
     for (dataByte in dataBytes) {
-        val intNum = CommonUtil.byte2int(dataByte)
+        val intNum = byte2int(dataByte)
         if (intNum >= 65 || intNum <= 95) {
             val binaryString = CommonUtil.hexStringToBinary(CommonUtil.Byte2Hex(dataByte))
             stringBuffer.append(binaryString.substring(3, binaryString.length))
@@ -221,7 +308,7 @@ fun String.bit5Encode(): String = run {
  * 高校图书馆UHF RFID标准 5bit解码
  */
 fun ByteArray.bit5Decode(): String = run {
-    val binStr = toStringRadix(2)
+    val binStr = toTargetRadixString(2)
     val dataLength: Int = binStr.length
     val index = dataLength / 5 + if (dataLength % 5 > 0) 1 else 0
     var bitData: String
@@ -235,7 +322,7 @@ fun ByteArray.bit5Decode(): String = run {
         bitData = "010$bitData"
         stringBuffer.append(binaryStringToHex(bitData))
     }
-    stringBuffer.toString().toAsciiString()
+    stringBuffer.toString().hex2AsciiString()
 }
 
 /**
@@ -253,7 +340,7 @@ fun String.bit6Encode() = run {
     val stringBuffer = StringBuffer()
     val dataBytes: ByteArray = this.toAsciiByteArray()
     for (dataByte in dataBytes) {
-        val intNum = CommonUtil.byte2int(dataByte)
+        val intNum = byte2int(dataByte)
         if (intNum >= 32 || intNum <= 95) {
             val binaryString = CommonUtil.hexStringToBinary(CommonUtil.Byte2Hex(dataByte))
             //截取最高位两位bit
@@ -289,7 +376,7 @@ fun String.bit6Encode() = run {
  * 高校图书馆UHF RFID标准 6bit解码
  */
 fun ByteArray.bit6Decode(): String = run {
-    val binStr = toStringRadix(2)
+    val binStr = toTargetRadixString(2)
     val dataLength: Int = binStr.length
     val index = dataLength / 6 + if (dataLength % 6 > 0) 1 else 0
     var bitData: String
@@ -317,7 +404,7 @@ fun ByteArray.bit6Decode(): String = run {
             }
         stringBuffer.append(binaryStringToHex(bitData))
     }
-    stringBuffer.toString().toAsciiString()
+    stringBuffer.toString().hex2AsciiString()
 }
 
 
@@ -336,7 +423,7 @@ fun String.bit7Encode(): String = run {
     val stringBuffer = StringBuffer()
     val dataBytes = this.toAsciiByteArray()
     for (dataByte in dataBytes) {
-        val intNum = CommonUtil.byte2int(dataByte)
+        val intNum = byte2int(dataByte)
         if (intNum >= 0 || intNum <= 126) {
             val binaryString = CommonUtil.hexStringToBinary(CommonUtil.Byte2Hex(dataByte))
             stringBuffer.append(binaryString.substring(1, binaryString.length))
@@ -371,7 +458,7 @@ fun String.bit7Encode(): String = run {
  * 高校图书馆UHF RFID标准 7bit解码
  */
 fun ByteArray.bit7Decode(): String = run {
-    val binStr = toStringRadix(2)
+    val binStr = toTargetRadixString(2)
     val dataLength: Int = binStr.length
     val index = dataLength / 7 + if (dataLength % 7 > 0) 1 else 0
     var bitData: String
@@ -392,7 +479,7 @@ fun ByteArray.bit7Decode(): String = run {
         bitData = "0$bitData"
         stringBuffer.append(binaryStringToHex(bitData))
     }
-    stringBuffer.toString().toAsciiString()
+    stringBuffer.toString().hex2AsciiString()
 }
 
 
@@ -422,7 +509,7 @@ private val digits = arrayOf("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "
  *
  */
 fun ByteArray.isilDecode(): String {
-    val binStrings = this.toStringRadix(2)
+    val binStrings = this.toTargetRadixString(2)
     val length = binStrings.length
     step = 5
     letterType = 0
@@ -433,7 +520,7 @@ fun ByteArray.isilDecode(): String {
     while (pos + step < length) {
         val str = binStrings.substring(pos, pos + step)
         pos += step
-        val covert: Int = Util.binary2Decimal(str)
+        val covert: Int = str.toTargetRadixString(2, 10).toInt()
         if (letterType == 0 || letterType == 1) {
             if (covert == 28 || covert == 29) {
                 if (covert == 29) {
@@ -517,7 +604,7 @@ fun String.isilEncode(): ByteArray = run {
 
         binary?.let {
             //把int值转化为二进制字符
-            val binaryStr = hexString2binaryString(Byte2Hex(binary.toByte()))
+            val binaryStr = Byte2Hex(binary.toByte()).hex2Binary()
             //判断所用字符集,大小写字符集截取后面5位,数字字符集截取后面4位
             if (nextCharacterSet == 0 || nextCharacterSet == 1) {
                 sb.append(binaryStr.substring(3))
@@ -580,7 +667,7 @@ fun String.isilEncode(): ByteArray = run {
             datasStr += "1"
         }
     }
-    binaryString2byteArray(datasStr)
+    datasStr.bin2ByteArray()
 }
 
 private fun switchLetterType() {

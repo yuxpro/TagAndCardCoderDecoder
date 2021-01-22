@@ -17,7 +17,7 @@ fun ByteArray.ganChuangDecode( ): String = run {
     rfidInfo?.let {
         result = it.data.decode2Str(it.codeDecodeType)
         if (it.prefix ?: 0 > 0) {
-            result = it.data.toStringRadix(10)
+            result = it.data.toTargetRadixString(10)
         }
     }
     result
