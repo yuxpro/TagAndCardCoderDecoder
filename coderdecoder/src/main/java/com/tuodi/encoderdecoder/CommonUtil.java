@@ -17,41 +17,6 @@ import java.util.TreeMap;
 
 public class CommonUtil {
 
-
-    //btye转int
-    public static int byte2int(byte data) {
-        return data & 0xff;
-    }
-
-    /**
-     * 一个btye转化为String数组
-     */
-    public static String[] byteToStrings(byte data) {
-        String[] hexStrings = new String[2];
-        String hexString = Byte2Hex(data);
-        for (int i = 0; i < 2; i++) {
-            String mData = hexString.substring(i, i + 1);
-            hexStrings[i] = mData;
-        }
-        return hexStrings;
-    }
-
-    /**
-     * 16进制转ASCII码
-     */
-    public static String hexStr2AsciiStr(String hex) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < hex.length() - 1; i += 2) {
-            //grab the hex in pairs
-            String output = hex.substring(i, (i + 2));
-            //convert hex to decimal
-            int decimal = Integer.parseInt(output, 16);
-            //convert the decimal to character
-            sb.append((char) decimal);
-        }
-        return sb.toString();
-    }
-
     /**
      * 获取CRC16
      */
@@ -86,7 +51,7 @@ public class CommonUtil {
      *
      * @return the array of byte
      */
-    public static final byte[] hex2byte(String hex)
+    public static byte[] hex2byte(String hex)
             throws IllegalArgumentException {
         if (hex.length() % 2 != 0) {
             throw new IllegalArgumentException();
@@ -114,7 +79,6 @@ public class CommonUtil {
         byte[] hexByte;
         if (isOdd(byteData) == 1) {
             hexString = "0" + byteData;
-        } else {
         }
         int byteLenght = hexString.length();
         hexByte = new byte[byteLenght / 2 + 1];
@@ -130,9 +94,7 @@ public class CommonUtil {
         return (byte) Integer.parseInt(substring, 16);
     }
 
-
     private static int isOdd(String byteData) {
-
         return byteData.length() & 0x1;
     }
 
@@ -1099,5 +1061,13 @@ public class CommonUtil {
                 }
             }
         }
+    }
+
+    public static String processData(String data) {
+        if ("".equals(data) || data == null) {
+            return "";
+        }
+        return CommonUtil.ByteArrToHexToNoNULL(
+                data.getBytes());
     }
 }
